@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import json
 from datetime import datetime
 
 from aiogram import Bot, Dispatcher, F
@@ -19,15 +20,16 @@ from google.oauth2.service_account import Credentials
 
 # ─── Настройки ───────────────────────────────────────────────
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-ADMIN_ID = int(os.environ["ADMIN_ID"])          # твой Telegram ID
-SHEET_ID = os.environ["SHEET_ID"]               # ID Google таблицы
-CREDENTIALS_FILE = "credentials.json"           # ключ сервисного аккаунта
+ADMIN_ID = int(os.environ["ADMIN_ID"])
+SHEET_ID = os.environ["SHEET_ID"]
 
 # ─── Google Sheets ────────────────────────────────────────────
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 def get_sheet():
-    creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+    creds_json = os.environ["GOOGLE_CREDENTIALS"]
+    creds_dict = json.loads(creds_json)
+    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
     return client.open_by_key(SHEET_ID).sheet1
 
